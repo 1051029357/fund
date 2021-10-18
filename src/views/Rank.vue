@@ -16,7 +16,12 @@
       @load="getData"
     >
       <ul class="list-content">
-        <li class="fund-item" v-for="item in fundList" :key="item.code">
+        <li
+          class="fund-item"
+          v-for="item in fundList"
+          :key="item.code"
+          @click="gotoDetail(item.code)"
+        >
           <div class="top-info">
             <span class="name">{{ item.name }}</span>
             <span class="code">{{ item.code }}</span>
@@ -59,6 +64,7 @@ import { useStore } from "vuex";
 import { reactive, toRefs, onMounted } from "vue";
 import Tabbar from "@/components/Tabbar";
 import { getFundRank } from "@/request/api.js";
+import { useRouter } from "vue-router";
 export default {
   name: "rank",
   components: {
@@ -67,6 +73,7 @@ export default {
   setup() {
     const store = useStore();
     console.log(store);
+    const router = useRouter();
     const state = reactive({
       fundList: [], //基金列表
       loading: false,
@@ -87,14 +94,13 @@ export default {
     onMounted(() => {});
 
     const getData = () => {
-      console.log("获取数据");
       getFundRank(state.fundQueryInfo).then((res) => {
         if (res.code == 200) {
           if (res.data.pageIndex >= res.data.allPages) {
             state.finished = true;
             return false;
           }
-          state.fundList.push(res.data.rank);
+          state.fundList.push(...res.data.rank);
           state.loading = false;
         }
       });
@@ -102,13 +108,21 @@ export default {
     };
 
     const changeType = ({ name }) => {
-      console.log(name);
       state.fundQueryInfo.fundType[0] = name;
+      state.fundList = [];
+      getData();
     };
+
+    //点击基金前往详情页
+    const gotoDetail = (code) => {
+      router.push({ name: "Detail", params: { code } });
+    };
+
     return {
       ...toRefs(state),
       getData,
       changeType,
+      gotoDetail,
     };
   },
 };

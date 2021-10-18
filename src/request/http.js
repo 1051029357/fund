@@ -1,8 +1,9 @@
 import axios from "axios";
 import { Notify } from "vant";
 
+//接口文档地址 https://doctorxiong.club/api/
 axios.defaults.baseURL = "https://api.doctorxiong.club/v1";
-//axios.defaults.headers["token"] = "";
+//axios.defaults.headers["token"] = "";  //token
 axios.defaults.headers.post["Content-Type"] = "application/json";
 
 // 请求拦截器
