@@ -6,6 +6,36 @@
         <span class="code">{{ fundInfo.code }}</span>
         <span class="type">{{ fundInfo.type }}</span>
       </div>
+      <div class="data-box">
+        <div class="last-year">
+          <p class="value" v-if="fundInfo.lastYearGrowth">
+            {{ fundInfo.lastYearGrowth }}
+          </p>
+          <p class="value" v-else>--</p>
+          <p class="text">近一年涨跌幅</p>
+        </div>
+        <div class="day-growth">
+          <p
+            class="value"
+            :class="{
+              'rise-color': fundInfo.dayGrowth > 0,
+              'fail-color': fundInfo.dayGrowth < 0,
+            }"
+          >
+            <span v-show="fundInfo.dayGrowth > 0">+</span
+            ><span v-show="fundInfo.dayGrowth < 0">-</span
+            >{{ fundInfo.dayGrowth }}%
+          </p>
+          <p class="text">日涨跌幅</p>
+        </div>
+        <div class="networth">
+          <p class="value">{{ fundInfo.netWorth }}</p>
+          <p class="text">净值{{ fundInfo.netWorthDate }}</p>
+        </div>
+      </div>
+      <div class="bottom-info" v-if="!fundInfo.lastYearGrowth">
+        <span>本基金为成立一年内的新发售基金</span>
+      </div>
     </div>
   </div>
 </template>
@@ -116,6 +146,7 @@ export default {
     background-color: #fff;
     .fundname {
       font-size: 18px;
+      margin-bottom: 3px;
     }
     .type-info {
       .code {
@@ -125,6 +156,28 @@ export default {
       }
       .type {
         font-size: 12px;
+      }
+    }
+    .data-box {
+      display: flex;
+      justify-content: space-between;
+      .text {
+        color: var(--vice-color);
+      }
+      .last-year {
+      }
+      .day-growth {
+      }
+      .networth {
+      }
+    }
+    .bottom-info {
+      background-color: #eee;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 15px;
+      span {
+        color: var(--vice-color);
       }
     }
   }

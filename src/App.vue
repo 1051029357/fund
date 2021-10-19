@@ -18,6 +18,9 @@ export default {
 </script>
 
 <style lang="scss">
+:root {
+  --vice-color: #969799;
+}
 * {
   padding: 0;
   margin: 0;
