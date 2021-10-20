@@ -1,14 +1,10 @@
 <template>
-  <Layout></Layout>
+  <router-view></router-view>
 </template>
 
 <script>
 import { onMounted } from "vue";
-import Layout from "@/components/Layout";
 export default {
-  components: {
-    Layout,
-  },
   setup() {
     onMounted(() => {});
 

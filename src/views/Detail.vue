@@ -1,52 +1,64 @@
 <template>
   <div class="detail">
-    <div class="info-box">
-      <p class="fundname">{{ fundInfo.name }}</p>
-      <div class="type-info">
-        <span class="code">{{ fundInfo.code }}</span>
-        <span class="type">{{ fundInfo.type }}</span>
-      </div>
-      <div class="data-box">
-        <div class="last-year">
-          <p class="value" v-if="fundInfo.lastYearGrowth">
-            {{ fundInfo.lastYearGrowth }}
-          </p>
-          <p class="value" v-else>--</p>
-          <p class="text">近一年涨跌幅</p>
+    <van-nav-bar
+      :title="fundInfo.name"
+      left-text="返回"
+      left-arrow
+      fixed
+      @click-left="comeBack"
+    />
+    <van-pull-refresh v-model="loading" @refresh="onRefresh">
+      <div class="content">
+        <div class="info-box">
+          <p class="fundname">{{ fundInfo.name }}</p>
+          <div class="type-info">
+            <span class="code">{{ fundInfo.code }}</span>
+            <span class="type">{{ fundInfo.type }}</span>
+          </div>
+          <div class="data-box">
+            <div class="last-year">
+              <p class="value">
+                {{ fundInfo.lastYearGrowth ? fundInfo.lastYearGrowth : "--" }}
+              </p>
+              <p class="text">近一年涨跌幅</p>
+            </div>
+            <div class="day-growth">
+              <p
+                class="value"
+                :class="{
+                  'rise-color': fundInfo.dayGrowth > 0,
+                  'fail-color': fundInfo.dayGrowth < 0,
+                }"
+              >
+                <span v-show="fundInfo.dayGrowth > 0">+</span>
+                <span v-show="fundInfo.dayGrowth < 0">-</span>
+                {{ fundInfo.dayGrowth }}%
+              </p>
+              <p class="text">日涨跌幅</p>
+            </div>
+            <div class="networth">
+              <p class="value">{{ fundInfo.netWorth }}</p>
+              <p class="text">净值{{ fundInfo.netWorthDate }}</p>
+            </div>
+          </div>
+          <div class="bottom-info" v-if="!fundInfo.lastYearGrowth">
+            <span>本基金为成立一年内的新发售基金</span>
+          </div>
         </div>
-        <div class="day-growth">
-          <p
-            class="value"
-            :class="{
-              'rise-color': fundInfo.dayGrowth > 0,
-              'fail-color': fundInfo.dayGrowth < 0,
-            }"
-          >
-            <span v-show="fundInfo.dayGrowth > 0">+</span
-            ><span v-show="fundInfo.dayGrowth < 0">-</span
-            >{{ fundInfo.dayGrowth }}%
-          </p>
-          <p class="text">日涨跌幅</p>
-        </div>
-        <div class="networth">
-          <p class="value">{{ fundInfo.netWorth }}</p>
-          <p class="text">净值{{ fundInfo.netWorthDate }}</p>
-        </div>
+        <div class="history-networth-box"></div>
       </div>
-      <div class="bottom-info" v-if="!fundInfo.lastYearGrowth">
-        <span>本基金为成立一年内的新发售基金</span>
-      </div>
-    </div>
+    </van-pull-refresh>
   </div>
 </template>
 <script>
 import { reactive, toRefs, onMounted } from "vue";
 //import { getFundDetail } from "@/request/api.js";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 export default {
   name: "detail",
   setup() {
     const route = useRoute();
+    const router = useRouter();
     const state = reactive({
       fundInfo: {
         code: "013596",
@@ -128,8 +140,14 @@ export default {
       //  }
       //});
     });
+
+    //点击返回按钮
+    const comeBack = () => {
+      router.go(-1);
+    };
     return {
       ...toRefs(state),
+      comeBack,
     };
   },
 };
@@ -138,47 +156,55 @@ export default {
 <style lang="scss" scoped>
 .detail {
   background-color: rgb(88, 120, 224);
-  min-height: 100vh;
-  .info-box {
-    border-radius: 6px;
-    padding: 10px;
-    margin: 20px 10px 0;
-    background-color: #fff;
-    .fundname {
-      font-size: 18px;
-      margin-bottom: 3px;
-    }
-    .type-info {
-      .code {
-        color: #888;
-        margin-right: 5px;
-        font-weight: bold;
-      }
-      .type {
-        font-size: 12px;
-      }
-    }
-    .data-box {
-      display: flex;
-      justify-content: space-between;
-      .text {
-        color: var(--vice-color);
-      }
-      .last-year {
-      }
-      .day-growth {
-      }
-      .networth {
-      }
-    }
-    .bottom-info {
-      background-color: #eee;
+  .content {
+    margin-top: 56px;
+    .info-box {
+      border-radius: 6px;
       padding: 10px;
-      border-radius: 4px;
-      margin-top: 15px;
-      span {
-        color: var(--vice-color);
+      margin: 0 10px;
+      background-color: #fff;
+      .fundname {
+        font-size: 18px;
+        margin-bottom: 3px;
       }
+      .type-info {
+        .code {
+          color: #888;
+          margin-right: 5px;
+          font-weight: bold;
+        }
+        .type {
+          font-size: 12px;
+        }
+      }
+      .data-box {
+        display: flex;
+        justify-content: space-between;
+        .text {
+          color: var(--vice-color);
+        }
+        .last-year {
+        }
+        .day-growth {
+        }
+        .networth {
+        }
+      }
+      .bottom-info {
+        background-color: #eee;
+        padding: 10px;
+        border-radius: 4px;
+        margin-top: 15px;
+        span {
+          color: var(--vice-color);
+        }
+      }
+    }
+    .history-networth-box {
+      border-radius: 6px;
+      padding: 10px;
+      background-color: #fff;
+      margin: 10px 10px 0;
     }
   }
 }
