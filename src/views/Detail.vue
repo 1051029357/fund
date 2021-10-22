@@ -45,6 +45,7 @@
             <span>本基金为成立一年内的新发售基金</span>
           </div>
         </div>
+        <div class="performance-trend" id="trend"></div>
         <div class="history-networth-box"></div>
       </div>
     </van-pull-refresh>
@@ -54,6 +55,7 @@
 import { reactive, toRefs, onMounted } from "vue";
 //import { getFundDetail } from "@/request/api.js";
 import { useRoute, useRouter } from "vue-router";
+import * as echarts from "echarts";
 export default {
   name: "detail",
   setup() {
@@ -139,6 +141,30 @@ export default {
       //    state.fundInfo = res.data;
       //  }
       //});
+
+      let arr = [],
+        arr1 = [];
+      state.fundInfo.totalNetWorthData.forEach((el) => {
+        arr1.push(el[0]);
+        arr.push(el[1]);
+      });
+      var myChart = echarts.init(document.getElementById("trend"));
+      const option = {
+        xAxis: {
+          type: "category",
+          data: arr1,
+        },
+        yAxis: {
+          type: "value",
+        },
+        series: [
+          {
+            data: arr,
+            type: "line",
+          },
+        ],
+      };
+      option && myChart.setOption(option);
     });
 
     //点击返回按钮
@@ -156,6 +182,9 @@ export default {
 <style lang="scss" scoped>
 .detail {
   background-color: rgb(88, 120, 224);
+  .van-pull-refresh {
+    height: 100vh;
+  }
   .content {
     margin-top: 56px;
     .info-box {
@@ -199,6 +228,13 @@ export default {
           color: var(--vice-color);
         }
       }
+    }
+    .performance-trend {
+      border-radius: 6px;
+      padding: 10px;
+      background-color: #fff;
+      margin: 10px 10px 0;
+      height: 300px;
     }
     .history-networth-box {
       border-radius: 6px;
