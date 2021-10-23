@@ -7,7 +7,7 @@
       fixed
       @click-left="comeBack"
     />
-    <van-pull-refresh v-model="loading" @refresh="onRefresh">
+    <van-pull-refresh v-model="loading" @refresh="getFundDetailInfo">
       <div class="content">
         <div class="info-box">
           <p class="fundname">{{ fundInfo.name }}</p>
@@ -17,21 +17,32 @@
           </div>
           <div class="data-box">
             <div class="last-year">
-              <p class="value">
-                {{ fundInfo.lastYearGrowth ? fundInfo.lastYearGrowth : "--" }}
+              <p
+                class="value"
+                :class="[
+                  fundInfo.lastYearGrowth > 0
+                    ? 'rise-color'
+                    : fundInfo.lastYearGrowth < 0
+                    ? 'fall-color'
+                    : '',
+                ]"
+              >
+                {{ lastYear }}
               </p>
               <p class="text">近一年涨跌幅</p>
             </div>
             <div class="day-growth">
               <p
                 class="value"
-                :class="{
-                  'rise-color': fundInfo.dayGrowth > 0,
-                  'fail-color': fundInfo.dayGrowth < 0,
-                }"
+                :class="[
+                  fundInfo.dayGrowth > 0
+                    ? 'rise-color'
+                    : fundInfo.dayGrowth < 0
+                    ? 'fall-color'
+                    : '',
+                ]"
               >
-                <span v-show="fundInfo.dayGrowth > 0">+</span>
-                <span v-show="fundInfo.dayGrowth < 0">-</span>
+                {{ fundInfo.dayGrowth > 0 ? "+" : "" }}
                 {{ fundInfo.dayGrowth }}%
               </p>
               <p class="text">日涨跌幅</p>
@@ -45,15 +56,36 @@
             <span>本基金为成立一年内的新发售基金</span>
           </div>
         </div>
-        <div class="performance-trend" id="trend"></div>
-        <div class="history-networth-box"></div>
+        <div class="performance-trend">
+          <p class="main-title">业绩走势</p>
+          <div id="trend"></div>
+        </div>
+        <div class="history-networth-box">
+          <p class="main-title">历史净值</p>
+          <ul>
+            <li class="title">
+              <span>日期</span><span>单位净值</span><span>日涨幅</span>
+            </li>
+            <li v-for="(item, index) in netWorthData" :key="index">
+              <span class="date">{{ item[0] }}</span
+              ><span class="netWorth">{{ item[1] }}</span
+              ><span
+                class="growth"
+                :class="[
+                  item[2] > 0 ? 'rise-color' : item[2] < 0 ? 'fall-color' : '',
+                ]"
+                >{{ item[2] > 0 ? "+" : "" }}{{ item[2] }}%</span
+              >
+            </li>
+          </ul>
+        </div>
       </div>
     </van-pull-refresh>
   </div>
 </template>
 <script>
-import { reactive, toRefs, onMounted } from "vue";
-//import { getFundDetail } from "@/request/api.js";
+import { reactive, toRefs, onMounted, computed } from "vue";
+import { getFundDetail } from "@/request/api.js";
 import { useRoute, useRouter } from "vue-router";
 import * as echarts from "echarts";
 export default {
@@ -62,118 +94,83 @@ export default {
     const route = useRoute();
     const router = useRouter();
     const state = reactive({
-      fundInfo: {
-        code: "013596",
-        name: "招商中证煤炭等权指数(LOF)C",
-        type: "指数型",
-        netWorth: 1.8171,
-        expectWorth: 1.8165,
-        totalWorth: 1.8171,
-        expectGrowth: "6.20",
-        dayGrowth: "6.24",
-        lastWeekGrowth: "1.2368",
-        lastMonthGrowth: "-2.59",
-        lastThreeMonthsGrowth: "",
-        lastSixMonthsGrowth: "",
-        lastYearGrowth: "",
-        buyMin: "10",
-        buySourceRate: "0.00",
-        buyRate: "0.00",
-        manager: "侯昊",
-        fundScale: "",
-        netWorthDate: "2021-10-18",
-        expectWorthDate: "2021-10-18 15:00:00",
-        netWorthData: [
-          ["2021-09-13", "1.9772", "0", ""],
-          ["2021-09-14", "1.9435", "-1.7", ""],
-          ["2021-09-15", "1.9707", "1.4", ""],
-          ["2021-09-16", "1.9618", "-0.45", ""],
-          ["2021-09-17", "1.8655", "-4.91", ""],
-          ["2021-09-22", "1.9503", "4.55", ""],
-          ["2021-09-23", "1.9166", "-1.73", ""],
-          ["2021-09-24", "1.7875", "-6.74", ""],
-          ["2021-09-27", "1.7259", "-3.45", ""],
-          ["2021-09-28", "1.8006", "4.33", ""],
-          ["2021-09-29", "1.718", "-4.59", ""],
-          ["2021-09-30", "1.7876", "4.05", ""],
-          ["2021-10-08", "1.7326", "-3.08", ""],
-          ["2021-10-11", "1.7949", "3.6", ""],
-          ["2021-10-12", "1.7655", "-1.64", ""],
-          ["2021-10-13", "1.6656", "-5.66", ""],
-          ["2021-10-14", "1.6546", "-0.66", ""],
-          ["2021-10-15", "1.7104", "3.37", ""],
-          ["2021-10-18", "1.8171", "6.24", ""],
-        ],
-        totalNetWorthData: [
-          ["2021-09-13", "1.9772"],
-          ["2021-09-14", "1.9435"],
-          ["2021-09-15", "1.9707"],
-          ["2021-09-16", "1.9618"],
-          ["2021-09-17", "1.8655"],
-          ["2021-09-22", "1.9503"],
-          ["2021-09-23", "1.9166"],
-          ["2021-09-24", "1.7875"],
-          ["2021-09-27", "1.7259"],
-          ["2021-09-28", "1.8006"],
-          ["2021-09-29", "1.718"],
-          ["2021-09-30", "1.7876"],
-          ["2021-10-08", "1.7326"],
-          ["2021-10-11", "1.7949"],
-          ["2021-10-12", "1.7655"],
-          ["2021-10-13", "1.6656"],
-          ["2021-10-14", "1.6546"],
-          ["2021-10-15", "1.7104"],
-          ["2021-10-18", "1.8171"],
-        ],
-      },
+      fundInfo: {},
+      netWorthData: [],
       //基金查询参数
       queryInfo: {
         code: route.params.code,
-        startDate: "",
+        startDate: "2020-10-22",
         endDate: "",
       },
+      loading: false,
     });
 
     onMounted(() => {
-      //getFundDetail(state.queryInfo).then((res) => {
-      //  if (res.code == 200) {
-      //    console.log(JSON.stringify(res.data));
-      //    state.fundInfo = res.data;
-      //  }
-      //});
-
-      let arr = [],
-        arr1 = [];
-      state.fundInfo.totalNetWorthData.forEach((el) => {
-        arr1.push(el[0]);
-        arr.push(el[1]);
+      getFundDetailInfo();
+    });
+    //获取基金详细信息
+    const getFundDetailInfo = () => {
+      state.loading = true;
+      getFundDetail(state.queryInfo).then((res) => {
+        if (res.code == 200) {
+          state.fundInfo = res.data;
+          state.netWorthData = res.data.netWorthData;
+          state.netWorthData.reverse();
+          let arrX = [],
+            arrY = [];
+          state.fundInfo.totalNetWorthData.forEach((el) => {
+            arrX.push(el[0]);
+            arrY.push(el[1]);
+          });
+          drawChart(arrX, arrY);
+          state.loading = false;
+        }
       });
+    };
+
+    //绘制走势图
+    const drawChart = (x, y) => {
       var myChart = echarts.init(document.getElementById("trend"));
       const option = {
         xAxis: {
           type: "category",
-          data: arr1,
+          data: x,
         },
         yAxis: {
           type: "value",
         },
         series: [
           {
-            data: arr,
+            data: y,
             type: "line",
+            smooth: true,
           },
         ],
       };
       option && myChart.setOption(option);
-    });
+    };
 
     //点击返回按钮
     const comeBack = () => {
       router.go(-1);
     };
+
+    const lastYear = computed(() => {
+      if (state.fundInfo.lastYearGrowth) {
+        if (state.fundInfo.lastYearGrowth > 0) {
+          return "+" + state.fundInfo.lastYearGrowth + "%";
+        } else {
+          return state.fundInfo.lastYearGrowth + "%";
+        }
+      } else {
+        return "--";
+      }
+    });
     return {
       ...toRefs(state),
       comeBack,
+      getFundDetailInfo,
+      lastYear,
     };
   },
 };
@@ -181,9 +178,12 @@ export default {
 
 <style lang="scss" scoped>
 .detail {
-  background-color: rgb(88, 120, 224);
+  background-color: var(--main-color);
   .van-pull-refresh {
     height: 100vh;
+  }
+  .main-title {
+    font-size: 18px;
   }
   .content {
     margin-top: 56px;
@@ -209,10 +209,15 @@ export default {
       .data-box {
         display: flex;
         justify-content: space-between;
+        align-items: flex-end;
+        margin-top: 15px;
         .text {
           color: var(--vice-color);
         }
         .last-year {
+          .value {
+            font-size: 26px;
+          }
         }
         .day-growth {
         }
@@ -234,13 +239,33 @@ export default {
       padding: 10px;
       background-color: #fff;
       margin: 10px 10px 0;
-      height: 300px;
+      #trend {
+        height: 300px;
+      }
     }
     .history-networth-box {
       border-radius: 6px;
       padding: 10px;
       background-color: #fff;
       margin: 10px 10px 0;
+      ul {
+        .title {
+          color: var(--vice-color);
+        }
+        li {
+          display: flex;
+          padding: 5px 0;
+          span {
+            flex: 1;
+            &:nth-child(2) {
+              text-align: center;
+            }
+            &:nth-child(3) {
+              text-align: right;
+            }
+          }
+        }
+      }
     }
   }
 }

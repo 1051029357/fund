@@ -15,6 +15,7 @@ export default {
 
 <style lang="scss">
 :root {
+  --main-color: #5878e0;
   --vice-color: #969799;
 }
 * {
