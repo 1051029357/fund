@@ -2,7 +2,6 @@
   <div class="detail">
     <van-nav-bar
       :title="fundInfo.name"
-      left-text="返回"
       left-arrow
       fixed
       @click-left="comeBack"
@@ -66,7 +65,7 @@
             <li class="title">
               <span>日期</span><span>单位净值</span><span>日涨幅</span>
             </li>
-            <li v-for="(item, index) in netWorthData" :key="index">
+            <li v-for="(item, index) in netWorthData.slice(0, 5)" :key="index">
               <span class="date">{{ item[0] }}</span
               ><span class="netWorth">{{ item[1] }}</span
               ><span
@@ -78,6 +77,34 @@
               >
             </li>
           </ul>
+          <p class="show-more" @click="showMore">更多数据></p>
+        </div>
+        <div class="fund-record">
+          <p class="main-title">基金档案</p>
+          <ul>
+            <li>
+              <span>基金全称</span><span>{{ fundInfo.name }}</span>
+            </li>
+            <li>
+              <span>基金代码</span><span>{{ fundInfo.code }}</span>
+            </li>
+            <li>
+              <span>资产规模</span><span>{{ fundInfo.fundScale }}</span>
+            </li>
+            <li>
+              <span>基金经理</span><span>{{ fundInfo.manager }}</span>
+            </li>
+            <li>
+              <span>起购额度</span><span>{{ fundInfo.buyMin }}</span>
+            </li>
+            <li>
+              <span>原始买入费率</span><span>{{ fundInfo.buySourceRate }}</span>
+            </li>
+            <li>
+              <span>当前买入费率</span><span>{{ fundInfo.buyRate }}</span>
+            </li>
+          </ul>
+          <p class="show-position" @click="toPosition">查看持仓></p>
         </div>
       </div>
     </van-pull-refresh>
@@ -155,6 +182,17 @@ export default {
       router.go(-1);
     };
 
+    //查看更多历史净值数据
+    const showMore = () => {
+      localStorage.setItem("networthData", JSON.stringify(state.netWorthData));
+      router.push({ path: "/networth" });
+    };
+
+    //前往查看持仓页面
+    const toPosition = () => {
+      router.push({ name: "Position", params: { code: route.params.code } });
+    };
+
     const lastYear = computed(() => {
       if (state.fundInfo.lastYearGrowth) {
         if (state.fundInfo.lastYearGrowth > 0) {
@@ -171,6 +209,8 @@ export default {
       comeBack,
       getFundDetailInfo,
       lastYear,
+      showMore,
+      toPosition,
     };
   },
 };
@@ -180,7 +220,7 @@ export default {
 .detail {
   background-color: var(--main-color);
   .van-pull-refresh {
-    height: 100vh;
+    min-height: 100vh;
   }
   .main-title {
     font-size: 18px;
@@ -265,6 +305,29 @@ export default {
             }
           }
         }
+      }
+      .show-more {
+        color: var(--main-color);
+        text-align: center;
+        margin-top: 15px;
+      }
+    }
+    .fund-record {
+      border-radius: 6px;
+      padding: 10px;
+      background-color: #fff;
+      margin: 10px;
+      ul {
+        li {
+          display: flex;
+          justify-content: space-between;
+          padding: 5px 0;
+        }
+      }
+      .show-position {
+        color: var(--main-color);
+        text-align: center;
+        margin-top: 15px;
       }
     }
   }
