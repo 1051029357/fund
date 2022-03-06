@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
+    <van-nav-bar title="首页" />
     <van-button type="danger">危险按钮</van-button>
     <Tabbar></Tabbar>
   </div>
@@ -15,3 +15,4 @@ export default {
   },
 };
 </script>
+<style lang="scss" scoped></style>

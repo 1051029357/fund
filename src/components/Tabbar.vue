@@ -1,6 +1,6 @@
 <template>
   <van-tabbar v-model="active" route>
-    <van-tabbar-item icon="home-o" to="/">首页</van-tabbar-item>
+    <van-tabbar-item icon="home-o" to="/home">首页</van-tabbar-item>
     <van-tabbar-item icon="label-o" to="/rank">排行</van-tabbar-item>
     <van-tabbar-item icon="friends-o">标签</van-tabbar-item>
     <van-tabbar-item icon="setting-o">标签</van-tabbar-item>

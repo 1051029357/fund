@@ -7,9 +7,7 @@ export default {
   name: "",
   setup() {
     const state = reactive({});
-    onMounted(()=>{
-      
-    })
+    onMounted(() => {});
     return {
       ...toRefs(state),
     };

@@ -1,6 +1,6 @@
 <template>
   <div class="rank">
-    <van-tabs v-model:active="active" sticky @click-tab="changeType">
+    <van-tabs v-model:active="active" @click-tab="changeType">
       <van-tab title="全部" name=""> </van-tab>
       <van-tab title="股票型" name="gp"> </van-tab>
       <van-tab title="混合型" name="hh"> </van-tab>
@@ -130,11 +130,17 @@ export default {
 
 <style lang="scss" scoped>
 .rank {
+  .van-tabs {
+    position: fixed;
+    top: 0;
+  }
   .van-list {
+    margin-top: 49px;
     margin-bottom: 50px;
   }
   .list-content {
     background-color: #eee;
+
     .fund-item {
       padding: 10px 20px;
       margin-bottom: 10px;
